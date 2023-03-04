@@ -1,7 +1,10 @@
 package hello.core.member;
 
 public class MemberServiceImpl implements MemberService{
-    private final MemberRepository memberRepository = new MemoryMemberRepository(); // 추상화, 구체화 모두 의존 -> DIP 위반
+    private final MemberRepository memberRepository;
+    public MemberServiceImpl (MemberRepository memberRepository){
+        this.memberRepository = memberRepository; // 생성자를 통해서 memberRepository에 구현체가 뭐가 들어갈지 선택
+    }
     @Override
     public void join(Member member) {
         memberRepository.save(member);

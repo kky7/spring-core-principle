@@ -54,6 +54,7 @@
 ## 새로운 할인 정책 적용과 문제점
 - 정액 할인 정책에서 정률 할인 정책으로 변경시
 - 추상화(인터페이스), 구체클래스(할인 정책 구현 클래스) 모두 의존 한다. 즉 DIP에 위반한다.
+- 할인의 역할 뿐 아니라 누구를 선택할지 책임도 가지게 된다. -> 다양한 책임을 가짐
 ```java
 //private final DiscountPolicy discountPolicy = new FixDiscountPolicy();
 private final DiscountPolicy discountPolicy = new RateDiscountPolicy();
@@ -62,4 +63,60 @@ private final DiscountPolicy discountPolicy = new RateDiscountPolicy();
 ```java
 private DiscountPolicy discountPolicy;
 ```
-- 그러나 대입된 것이 없으므로 Null pointer Exception 발생 -> DIP를 위반하지 않을 려면 누군가가 대신 주입 해주어야 한다.
+- 그러나 대입된 것이 없으므로 Null pointer Exception 발생 -> DIP를 위반하지 않을려면 누군가가 대신 주입 해주어야 한다.
+
+## 관심사 분리
+- 공연을 예로 들어 로미오 역할(인터페이스)을 하는 디카프리오라는 남자 배우(구현체)가 줄리엣 역할(인터페이스)을 하는 여자 주인공(구현체)를 초빙하는 것과 같음
+- 디카프리오는 공연도하고 여자 주인공도 초빙하는 **다양한 책임**을 가지게 됨.
+- 역할에 맞는 배우를 지정하는 책임을 담당하는 별도의 **공연 기획자**가 필요
+- 배우와 공연 기획자의 **책임을 확실히 분리**해야함. (**관심사 분리**)
+
+### AppConfig
+```java
+public class AppConfig {
+
+    private MemberRepository memberRepository(){
+        return new MemoryMemberRepository();
+    }
+    public MemberService memberService() {
+        return new MemberServiceImpl(memberRepository()); // 생성자 주입
+    }
+
+    public DiscountPolicy discountPolicy() {
+        return new FixDiscountPolicy();
+    }
+    public OrderService orderService(){
+        return new OrderServiceImpl(memberRepository(), discountPolicy());
+    }
+}
+```
+```java
+public class OrderServiceImpl implements OrderService{
+    private final MemberRepository memberRepository;
+    private final DiscountPolicy discountPolicy;
+
+    public OrderServiceImpl(MemberRepository memberRepository, DiscountPolicy discountPolicy) {
+        this.memberRepository = memberRepository;
+        this.discountPolicy = discountPolicy;
+    }
+
+    @Override
+    public Order createOrder(Long memberId, String itemName, int itemPrice) {
+        Member member = memberRepository.findByid(memberId);
+        int discountPrice = discountPolicy.discount(member, itemPrice); // 단일책임원칙을 잘 지킨 것 (할인에 대한 변경이 필요하면 할인 쪽만 고치면 된다.)
+        return new Order(memberId, itemName, itemPrice, discountPrice);
+    }
+}
+```
+- 애플리케이션의 전체 동작을 구성, 구현 객체를 생성하고, 연결하는 책임을 가지는 별도의 설정 클래스
+- AppConfig를 이용해서 구현체를 선택한다.
+- 객체의 생성과 연결은 AppConfig가 담당
+- DIP: OrderServiceImpl은 MemberRepository, DiscountPolicy 추상에만 의존한다. 구체 클래스를 몰라도된다.
+- 관심사 분리: 객체를 생성하고 연결하는 역할과 실행하는 역할이 명확히 분리되었다.
+- 할인정책을 변경할려면 아래 부분만 변경하면됨. DIP, OCP 만족
+```java
+    public DiscountPolicy discountPolicy() {
+        return new RateDiscountPolicy();
+    }
+
+```
