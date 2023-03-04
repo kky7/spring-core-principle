@@ -47,3 +47,19 @@
 - 구현 클래스에 의존하지 말고, 인터페이스에 의존
 - 역할에 의존하게 해야 한다는 것과 같다.
 - 인터페이스에 의존해야 유연하게 구현체를 변경할 수 있다.
+  
+--------------------------------------------------------
+  
+# 예제 - 객체 지향 원리 적용
+## 새로운 할인 정책 적용과 문제점
+- 정액 할인 정책에서 정률 할인 정책으로 변경시
+- 추상화(인터페이스), 구체클래스(할인 정책 구현 클래스) 모두 의존 한다. 즉 DIP에 위반한다.
+```java
+//private final DiscountPolicy discountPolicy = new FixDiscountPolicy();
+private final DiscountPolicy discountPolicy = new RateDiscountPolicy();
+```
+- DIP에 위반하지 않도록
+```java
+private DiscountPolicy discountPolicy;
+```
+- 그러나 대입된 것이 없으므로 Null pointer Exception 발생 -> DIP를 위반하지 않을 려면 누군가가 대신 주입 해주어야 한다.
