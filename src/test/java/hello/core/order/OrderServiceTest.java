@@ -10,8 +10,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 public class OrderServiceTest {
-    MemberService memberService;
-    OrderService orderService;
+    private MemberService memberService;
+    private OrderService orderService;
 
     @BeforeEach
     public void beforeEach(){
@@ -33,4 +33,5 @@ public class OrderServiceTest {
         // then
         Assertions.assertThat(order.getDiscountPrice()).isEqualTo(1000);
     }
+
 }
