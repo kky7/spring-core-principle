@@ -5,6 +5,7 @@ import hello.core.member.Member;
 import hello.core.member.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 @Component // 1. 스프링 빈 등록 -> 2. @Autowired 있는 것을 의존관계 주입
